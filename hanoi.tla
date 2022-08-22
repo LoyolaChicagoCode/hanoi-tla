@@ -1,11 +1,13 @@
 ---- MODULE hanoi ----
 EXTENDS TLC, Sequences, Integers
 
-(* --algorithm hanoi
+CONSTANTS TSIZE, TSPACES
 
-variables 
-  full = <<1, 2, 3, 4>>,
-  tower = <<full, <<>>, <<>>>>, 
+FullTower[n \in 1..TSIZE] == n \* <<1, 2, 3, ...>>
+Board[n \in 1..TSPACES] == IF n = 1 THEN FullTower ELSE <<>>
+
+(* --algorithm hanoi
+variables tower = Board;
 
 define 
   D == DOMAIN tower
@@ -13,8 +15,7 @@ end define;
 
 begin
 while TRUE do
-  assert tower[3] /= full;
-  with from \in {x \in D : tower[x] /= <<>>},
+  assert tower[TSPACES] /= FullTower;  with from \in {x \in D : tower[x] /= <<>>},
        to \in {
                 y \in D : 
                   \/ tower[y] = <<>>
@@ -26,21 +27,20 @@ while TRUE do
   end with;
 end while;
 end algorithm; *)
-\* BEGIN TRANSLATION (chksum(pcal) = "7be5ed3e" /\ chksum(tla) = "d6d9ff5b")
-VARIABLES full, tower
+\* BEGIN TRANSLATION (chksum(pcal) = "cd924c73" /\ chksum(tla) = "6008117f")
+VARIABLE tower
 
 (* define statement *)
 D == DOMAIN tower
 
 
-vars == << full, tower >>
+vars == << tower >>
 
 Init == (* Global variables *)
-        /\ full = <<1, 2, 3, 4>>
-        /\ tower = <<full, <<>>, <<>>>>
+        /\ tower = Board
 
-Next == /\ Assert(tower[3] /= full, 
-                  "Failure of assertion at line 16, column 3.")
+Next == /\ Assert(tower[TSPACES] /= FullTower, 
+                  "Failure of assertion at line 18, column 3.")
         /\ \E from \in {x \in D : tower[x] /= <<>>}:
              \E to \in {
                          y \in D :
@@ -49,7 +49,6 @@ Next == /\ Assert(tower[3] /= full,
                        }:
                tower' = [tower EXCEPT ![from] = Tail(tower[from]),
                                       ![to] = <<Head(tower[from])>> \o tower[to]]
-        /\ full' = full
 
 Spec == Init /\ [][Next]_vars
 
