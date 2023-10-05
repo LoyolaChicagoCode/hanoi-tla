@@ -1,7 +1,8 @@
 ---- MODULE MC ----
+
 EXTENDS hanoi
 
-ConstTSize == 9
+ConstTSize == 4
 ConstTSpaces == 3
 
 ==== MC 
